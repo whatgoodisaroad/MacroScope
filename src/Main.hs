@@ -1,3 +1,6 @@
+-- MacroScope
+-------------------------------------------------------------------------------
+
 module MacroScope where
 
 import Data.List (nub, intersect)
@@ -74,7 +77,7 @@ m `usesOf_sub` ts 	= m `usesOf_sub_l` ts ++ m `usesOf_sub_r` ts
 m `usesOf` ts 		= m `usesOf_1` ts ++ m `usesOf_sub` ts
 
 
--- Macro Dominance, Selection, Blocking
+-- Macro Dominance
 -------------------------------------------------------------------------------
 
 -- Transform into literal normal form (i.e. Not is only applied to names)
@@ -104,6 +107,9 @@ findDoms (e :| e')          = findDoms e `intersect` findDoms e'
 noConflict :: [Lit] -> [Lit]
 noConflict ls = nub [ l | l@(b, n) <- ls, not $ elem (not b, n) ls ]
 
+
+-- Macro Selection and Blocking
+-------------------------------------------------------------------------------
 
 controls, weakIndep, sel_l, sel_r, blk_l, blk_r :: Macro -> Tree -> Bool
 m `controls` (Tree e _ _) 	= any (\(_, m') -> m == m') $ dominatingLiterals e
