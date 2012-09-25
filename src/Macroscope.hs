@@ -40,12 +40,12 @@ dominate (And e e')      = dominate e ++ dominate e'
 dominate (Or  e e')      = dominate e `intersect` dominate e'
 
 noConflict :: [Lit] -> [Lit]
-noConflict ls = nub [l | l@(b,n)<-ls, not (elem (not b,n) ls)]
+noConflict ls = nub [l | l@(b,n) <- ls, not (elem (not b,n) ls)]
 
 
 -- Examples
 --
-[m1,m2,m3] = [Macro ('m':show i) | i<-[1..3]]
+[m1,m2,m3] = [ Macro ('m':show i) | i <- [1..3] ]
 
 e1 = And m1 (Not m1)
 e2 = And m2 (Not m1)
