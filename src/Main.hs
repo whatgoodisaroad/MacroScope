@@ -4,7 +4,7 @@
 module MacroScope where
 
 import Data.List (nub, intersect)
-
+import Control.Monad (guard)
 
 -- Datatypes
 -------------------------------------------------------------------------------
@@ -48,6 +48,25 @@ m `occursInExpr` (Macro m') = m == m'
 m `occursInExpr` (e :& e') = or $ map (occursInExpr m) [e, e']
 m `occursInExpr` (e :| e') = or $ map (occursInExpr m) [e, e']
 m `occursInExpr` (Not e) = (occursInExpr m) e
+
+
+-- Macro Listing
+-------------------------------------------------------------------------------
+
+macrosOfExpr :: Expr -> [Macro]
+macrosOfExpr (Macro m) = [m]
+macrosOfExpr (e :& e') = macrosOfExpr e ++ macrosOfExpr e'
+macrosOfExpr (e :| e') = macrosOfExpr e ++ macrosOfExpr e'
+macrosOfExpr (Not e) = macrosOfExpr e
+
+macrosOfTree :: Tree -> [Macro]
+macrosOfTree (Tree e f f') = 
+	   macrosOfExpr e 
+	++ macrosOfForest f 
+	++ macrosOfForest f'
+
+macrosOfForest :: Forest -> [Macro]
+macrosOfForest ts = concat $ map macrosOfTree ts
 
 
 -- Macro Descendance
@@ -124,12 +143,19 @@ blk_r = sel_l
 -- Mutual exclusion
 -------------------------------------------------------------------------------
 
+-- Macros m and m' appear to be mutually exclusive iff neither m descends from
+-- m' nor m' descends from m.
 mutex :: Macro -> Macro -> Forest -> Bool
 mutex m m' ts = not $ m `desc` m' || m' `desc` m
 	where desc m m' = descendantOf m m' ts
 
-
-
-
-
+-- Naive implementation.
+mutexMacros :: Forest -> [(Macro, Macro)]
+mutexMacros f = nub $ do
+	let macros = macrosOfForest f
+	m <- macros
+	m' <- macros
+	guard $ m /= m'
+	guard $ mutex m m' f
+	return (m, m')
 
