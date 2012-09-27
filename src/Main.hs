@@ -19,6 +19,14 @@ data Expr = Macro Macro
 type Forest = [Tree]
 data Tree = Tree Expr Forest Forest
 
+instance Show Expr where
+	show (Macro m) = m
+	show (e :& e') = "(" ++ show e ++ " & " ++ show e' ++ ")"
+	show (e :| e') = "(" ++ show e ++ " | " ++ show e' ++ ")"
+	show (Not e) = "~(" ++ show e ++ ")"
+
+instance Show Tree where
+	show (Tree e f f') = show e ++ "<" ++ show f ++ "," ++ show f' ++ ">"
 
 -- Expression Semantics
 -------------------------------------------------------------------------------
@@ -90,8 +98,8 @@ usesOf_1, usesOf_sub_l, usesOf_sub_r, usesOf_sub, usesOf
 	:: Macro -> Forest -> Forest
 
 m `usesOf_1` ts 	= filter (\(Tree e _ _) -> m `occursInExpr` e) ts
-m `usesOf_sub_l` ts = concat $ map (\(Tree _ l _) -> m `usesOf_sub` l) ts
-m `usesOf_sub_r` ts = concat $ map (\(Tree _ _ r) -> m `usesOf_sub` r) ts
+m `usesOf_sub_l` ts = concat $ map (\(Tree _ l _) -> m `usesOf` l) ts
+m `usesOf_sub_r` ts = concat $ map (\(Tree _ _ r) -> m `usesOf` r) ts
 m `usesOf_sub` ts 	= m `usesOf_sub_l` ts ++ m `usesOf_sub_r` ts
 m `usesOf` ts 		= m `usesOf_1` ts ++ m `usesOf_sub` ts
 
