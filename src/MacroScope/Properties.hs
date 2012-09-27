@@ -1,32 +1,12 @@
--- MacroScope
+-- MacroScope Properties
 -------------------------------------------------------------------------------
 
-module MacroScope where
+module MacroScope.Properties where
 
 import Data.List (nub, intersect)
 import Control.Monad (guard)
 
--- Datatypes
--------------------------------------------------------------------------------
-
-type Macro = String
-
-data Expr = Macro Macro
-		  | Expr :& Expr
-		  | Expr :| Expr
-		  | Not Expr
-
-type Forest = [Tree]
-data Tree = Tree Expr Forest Forest
-
-instance Show Expr where
-	show (Macro m) = m
-	show (e :& e') = "(" ++ show e ++ " & " ++ show e' ++ ")"
-	show (e :| e') = "(" ++ show e ++ " | " ++ show e' ++ ")"
-	show (Not e) = "~(" ++ show e ++ ")"
-
-instance Show Tree where
-	show (Tree e f f') = show e ++ "<" ++ show f ++ "," ++ show f' ++ ">"
+import  MacroScope.Syntax
 
 -- Expression Semantics
 -------------------------------------------------------------------------------
@@ -68,13 +48,13 @@ macrosOfExpr (e :| e') = macrosOfExpr e ++ macrosOfExpr e'
 macrosOfExpr (Not e) = macrosOfExpr e
 
 macrosOfTree :: Tree -> [Macro]
-macrosOfTree (Tree e f f') = 
+macrosOfTree (Tree e f f') = nub $
 	   macrosOfExpr e 
 	++ macrosOfForest f 
 	++ macrosOfForest f'
 
 macrosOfForest :: Forest -> [Macro]
-macrosOfForest ts = concat $ map macrosOfTree ts
+macrosOfForest ts = nub $ concat $ map macrosOfTree ts
 
 
 -- Macro Descendance
@@ -157,13 +137,18 @@ mutex :: Macro -> Macro -> Forest -> Bool
 mutex m m' ts = not $ m `desc` m' || m' `desc` m
 	where desc m m' = descendantOf m m' ts
 
+-- Get unique pairs.
+pairs :: [a] -> [(a, a)]
+pairs as = do
+	idx <- [0 .. (pred $ length as)]
+	let a = as !! idx
+	a' <- drop (succ idx) as
+	return (a, a')
+
 -- Naive implementation.
-mutexMacros :: Forest -> [(Macro, Macro)]
-mutexMacros f = nub $ do
-	let macros = macrosOfForest f
-	m <- macros
-	m' <- macros
-	guard $ m /= m'
+mutexMacros_naive :: Forest -> [(Macro, Macro)]
+mutexMacros_naive f = do
+	(m, m') <- pairs $ macrosOfForest f
 	guard $ mutex m m' f
 	return (m, m')
 
