@@ -1,0 +1,39 @@
+[
+~(CONFIG_NEED_MULTIPLE_NODES)<[],[]>,
+CONFIG_COMPAT_BRK<[],[]>,
+SPLIT_RSS_COUNTING<[],[]>,
+HAVE_GENERIC_MMU_GATHER<
+    [
+    CONFIG_HAVE_RCU_TABLE_FREE<[],[]>,
+    CONFIG_HAVE_RCU_TABLE_FREE<[],[]>
+    ],
+    []
+>,
+CONFIG_HAVE_RCU_TABLE_FREE<[],[]>,
+~(is_zero_pfn)<[],[]>,
+~(my_zero_pfn)<[],[]>,
+__HAVE_ARCH_PTE_SPECIAL<[],[]>,
+HAVE_GENERIC_MMU_GATHER<[],[]>,
+CONFIG_DEBUG_VM<[],[]>,
+CONFIG_ELF_CORE<[],[]>,
+(CONFIG_SMP | CONFIG_PREEMPT)<[],[]>,
+~(__PAGETABLE_PUD_FOLDED)<[],[]>,
+~(__PAGETABLE_PMD_FOLDED)<
+    [
+    ~(__ARCH_HAS_4LEVEL_HACK)<[],[]>
+    ],
+    []
+>,
+~(__HAVE_ARCH_GATE_AREA)<
+    [
+    AT_SYSINFO_EHDR<[],[]>,
+    AT_SYSINFO_EHDR<[],[]>,
+    AT_SYSINFO_EHDR<[],[]>
+    ],
+    []
+>,
+CONFIG_HAVE_IOREMAP_PROT<[],[]>,
+CONFIG_HAVE_IOREMAP_PROT<[],[]>,
+CONFIG_PROVE_LOCKING<[],[]>,
+(CONFIG_TRANSPARENT_HUGEPAGE | CONFIG_HUGETLBFS)<[],[]>
+]

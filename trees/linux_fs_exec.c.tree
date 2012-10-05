@@ -1,0 +1,18 @@
+[
+CONFIG_MMU<
+    [CONFIG_STACK_GROWSUP<[],[]>],
+    []
+>,
+CONFIG_COMPAT<[],[]>,
+CONFIG_COMPAT<[],[]>,
+CONFIG_COMPAT<[],[]>,
+CONFIG_MMU<
+    [
+    CONFIG_STACK_GROWSUP<[],[]>,
+    CONFIG_STACK_GROWSUP<[],[]>
+    ],
+    []
+>,
+CONFIG_MODULES<[],[]>,
+CONFIG_COMPAT<[],[]>
+]
