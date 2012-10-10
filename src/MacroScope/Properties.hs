@@ -92,8 +92,6 @@ leftDescendantOf child parent tree =
 rightDescendentOf child parent tree =
 	child `occursInForest` (parent `useOfInRight` tree)
 
-
-
 -- Checks whether the child macro is ever in a tree selected by the parent 
 -- macro. This is tricky because the two different kinds of selection require
 -- two different kinds of recursion.
@@ -104,9 +102,6 @@ follows child parent forest = inL || inR
 			(concat $ map leftOfTree $ parent `sel_lUseIn` forest)
 		inR = child `occursInForest` 
 			(concat $ map rightOfTree $ parent `sel_rUseIn` forest)
-
-
-
 
 -- Trees with expressions that use the given macro, not necessarily in the 
 -- trees of their subforests.
@@ -137,6 +132,19 @@ m `useOfInTree` t@(Tree e left right) = self ++ l_sub ++ r_sub
 		l_sub = m `useOfInLeft` t
 		r_sub = m `useOfInRight` t
 
+appearsOutside :: Macro -> Macro -> Forest -> Bool
+appearsOutside child parent = appears . concat . map validChildren
+	where
+		validChildren :: Tree -> Forest
+		validChildren t@(Tree _ l r)
+			| parent `sel_l` t = r
+			| parent `sel_r` t = l
+			| otherwise = l ++ r
+		appears :: Forest -> Bool
+		appears [] = False
+		appears ts = 
+				any (occursInExpr child . exprOfTree) ts 
+			|| 	(appears $ concat $ map validChildren ts)
 
 
 
@@ -216,6 +224,19 @@ mutexMacros_naive :: Forest -> [(Macro, Macro)]
 mutexMacros_naive f = do
 	(m, m') <- pairs $ macrosOfForest f
 	guard $ mutex m m' f
+	return (m, m')
+
+-- Refinement
+-------------------------------------------------------------------------------
+
+refines :: Macro -> Macro -> Forest -> Bool
+refines child parent ts = not $ appearsOutside child parent ts || mutex child parent ts
+
+-- Naive implementation.
+refinements_naive :: Forest -> [(Macro, Macro)]
+refinements_naive f = do
+	(m, m') <- pairs $ macrosOfForest f
+	guard $ refines m m' f
 	return (m, m')
 
 
