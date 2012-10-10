@@ -230,12 +230,18 @@ mutexMacros_naive f = do
 -------------------------------------------------------------------------------
 
 refines :: Macro -> Macro -> Forest -> Bool
-refines child parent ts = not $ appearsOutside child parent ts || mutex child parent ts
-
+refines child parent ts = descends && not areMutex && not without
+	where
+		descends = follows child parent ts
+		areMutex = mutex child parent ts
+		without = appearsOutside child parent ts
+		
 -- Naive implementation.
 refinements_naive :: Forest -> [(Macro, Macro)]
 refinements_naive f = do
-	(m, m') <- pairs $ macrosOfForest f
+	let macros = macrosOfForest f
+	m <- macros
+	m' <- macros
 	guard $ refines m m' f
 	return (m, m')
 
