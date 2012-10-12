@@ -1,7 +1,9 @@
 -- MacroScope Translator
 -------------------------------------------------------------------------------
 
-module MacroScope.Tranlsator where
+module MacroScope.Translator where
+
+import Control.Applicative
 
 import Language.CPP.Syntax
 import Language.CPP.Parser
@@ -34,3 +36,8 @@ bexprToExpr (AC.Var m) = MS.Macro m
 bexprToExpr (AC.Not e) = MS.Not $ bexprToExpr e
 bexprToExpr (AC.And e e') = (MS.:&) (bexprToExpr e) (bexprToExpr e')
 bexprToExpr (AC.Or e e') = (MS.:|) (bexprToExpr e) (bexprToExpr e')
+
+parseFiles :: [FilePath] -> IO MS.Forest
+parseFiles = fmap (concat . concat . map translate) . mapM (parseFile discard)
+
+
