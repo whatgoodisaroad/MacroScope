@@ -3,6 +3,7 @@
 
 module MacroScope.Syntax where
 
+import Data.List
 
 -- Datatypes
 -------------------------------------------------------------------------------
@@ -23,13 +24,36 @@ instance Show Expr where
     show (e :| e')  = "(" ++ show e ++ " | " ++ show e' ++ ")"
     show (Not e)    = "~(" ++ show e ++ ")"
 
---prettyPrintForest :: Forest -> String
---prettyPrintForest = ppf 0
---    where
---        ppf :: Int -> Forest -> String
---        ppf depth (Tree e f f') = pad ++ m ++ "<"
---            where 
---                pad = take (depth * 4) $ repeat ' '
+showForest :: Forest -> String
+showForest = concat . intersperse "\n" . map showTree
 
-instance Show Tree where
-    show (Tree e f f') = show e ++ "<" ++ show f ++ "," ++ show f' ++ ">"
+showTree :: Tree -> String
+showTree = showTD 0
+    where
+        showTD :: Int -> Tree -> String
+        showTD d (Tree e f f') = foldl1 (++) [
+                pre,
+                show e,
+                "<[",
+                sub f,
+                "],[",
+                sub f',
+                "]>"
+            ]
+            where
+                sub :: Forest -> String
+                sub for = if null for
+                    then ""
+                    else foldl1 (++) [ 
+                            "\n", 
+                            showFD (succ d) for, 
+                            "\n", 
+                            pre 
+                        ]
+
+                pre = take (4 * d) $ repeat ' '
+                showFD d = concat . intersperse "\n" . map (showTD d)
+
+
+
+

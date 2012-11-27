@@ -193,6 +193,20 @@ defined :: Parser CExpr
 defined = reserved "defined" >> (parens macro <|> macro) >>= return . Defined
 
 literal :: Parser CExpr
-literal = int <|> char
+literal = cInteger <|> int <|> char
   where int  = liftM (IntConst . fromInteger) integer
         char = liftM CharConst charLiteral
+
+cInteger :: Parser CExpr
+cInteger = do
+  int <- (liftM (IntConst . fromInteger) $ do
+      i <- integer
+      optional $ oneOf "LM"
+      return i
+    )
+  return int
+
+
+
+
+

@@ -3,6 +3,9 @@
 
 module MacroScope.Translator where
 
+import System.IO
+import Control.DeepSeq
+import Control.Monad (liftM, liftM2)
 import Control.Applicative
 
 import Language.CPP.Syntax
@@ -40,4 +43,12 @@ bexprToExpr (AC.Or e e') = (MS.:|) (bexprToExpr e) (bexprToExpr e')
 parseFiles :: [FilePath] -> IO MS.Forest
 parseFiles = fmap (concat . concat . map translate) . mapM (parseFile discard)
 
+greedyParseFile :: Eq a => KeepData a -> FilePath -> IO (File a)
+greedyParseFile k p = liftM (parseCPP k p) (greedyReadFile p)
 
+greedyReadFile :: FilePath -> IO String
+greedyReadFile name = do 
+    inFile <- openFile name ReadMode
+    contents <- hGetContents inFile
+    contents `deepseq` hClose inFile
+    return contents

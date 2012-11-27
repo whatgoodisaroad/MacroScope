@@ -1,0 +1,9 @@
+Running FindClasses against linux/kernel
+Mutually exclusive: 49.74685%
+Refinements: 6.8811394e-2%
+Weak refinements: 6.8811394e-2%
+
+
+real    4m19.712s
+user    4m17.708s
+sys     0m1.276s
